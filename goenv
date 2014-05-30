@@ -1,5 +1,29 @@
-#!/bin/bash
-mkdir -p bin pkg src
-export GOPATH="`pwd`"
-export PATH="$GOPATH/bin:$PATH"
-unset GOBIN
+[[ $_ != $0 ]] && SOURCE=0 || SOURCE=1
+
+if `test "x$SOURCE" == "x0"`; then
+	if `test ! $1`; then
+		while true; do
+			if [ -d "$PWD/bin" -a -d "$PWD/pkg" -a -d "$PWD/src" ]; then
+				export GOPATH=$PWD
+				export PATH="$GOPATH/bin:$PATH"
+				unset GOBIN
+				export PS1="(`basename \"$PWD\"`)$PS1"
+				break
+			else
+				cd ..
+				if [ "$PWD" == "/" ]; then
+					break
+				fi
+			fi
+		done
+		cd $oldpwd
+	fi
+else
+	if `test ! $1`; then
+		echo "This command should be used together with a path" >&2
+		echo "    $0 . # To create a go virtual env here" >&2
+	else
+		mkdir -p $1/{bin,pkg,src}
+		oldpwd=$PWD
+	fi
+fi
